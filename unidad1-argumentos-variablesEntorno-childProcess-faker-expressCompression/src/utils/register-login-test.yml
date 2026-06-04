@@ -1,0 +1,57 @@
+# load-test.yml — 5000 usuarios, cada uno hace 1 registro + 1 login
+config:
+  target: "http://localhost:3000"
+  phases:
+    - name: "carga 5000 usuarios"
+      duration: 120
+      arrivalCount: 5000
+  http:
+    timeout: 30
+  plugins:
+    expect: {}
+    metrics-by-endpoint: {}
+
+scenarios:
+  - name: "create fake user + register + login"
+    flow:
+      - get:
+          url: "/faker-users/1"
+          capture:
+            - json: "$.payload[0].email"
+              as: "email"
+            - json: "$.payload[0].password"
+              as: "password"
+            - json: "$.payload[0].firstName"
+              as: "firstName"
+            - json: "$.payload[0].lastName"
+              as: "lastName"
+
+      - post:
+          url: "/api/register"
+          json:
+            email: "{{ email }}"
+            firstName: "{{ firstName }}"
+            lastName: "{{ lastName }}"
+            password: "{{ password }}"
+          capture:
+            - json: "$.message"
+              as: "msgRegister"
+          expect:
+            - statusCode: 200
+            - equals:
+                - "{{ msgRegister }}"
+                - "usuario registrado"
+
+      - post:
+          url: "/api/login"
+          json:
+            email: "{{ email }}"
+            password: "{{ password }}"
+          capture:
+            - json: "$.message"
+              as: "msgLogin"
+          expect:
+            - statusCode: 200
+            - equals:
+                - "{{ msgLogin }}"
+                - "usuario logiado"

@@ -74,7 +74,7 @@ app.use(compression({
 // ninguna otra request puede ser procesada hasta que termine.
 function operacionCompleja(){
     let result = 0
-    for(let i = 0; i < 5e9; i++){
+    for(let i = 0; i < 5e7; i++){
         result += i
     }
     return result
@@ -144,6 +144,7 @@ app.get("/faker-users/:quantity",(req,res)=>{
         const user = {
             _id: faker.database.mongodbObjectId(),  // ID de MongoDB falso
             email: faker.internet.email(),           // Email aleatorio
+            password: faker.internet.password(),
             firstName: faker.person.firstName(),     // Nombre
             lastName: faker.person.lastName(),       // Apellido
             age: faker.date.birthdate(),             // Fecha de nacimiento
@@ -184,6 +185,25 @@ app.get("/json-grande",(req,res)=>{
 app.get("/json-chico",(req,res)=>{
     let string = "Hola coders, soy un string ridiculamente largo"
     res.json({payload:string})
+})
+
+let users = []
+app.post("/api/register",(req,res)=>{
+    const {email,firstName,lastName,password} = req.body
+    const userExist = users.find(user => user.email === email)
+    if(userExist){
+        return res.json({message:"usuario ya existe"})
+    }
+    users.push({email,firstName,lastName,password})
+    res.json({message:"usuario registrado"})
+})
+
+app.post("/api/login",(req,res)=>{
+    const {email,password} = req.body
+    const user = users.find(user => user.email === email)
+    if(!user) return res.json({message:"usuario no existe"})
+    if(user.password !== password) return res.json({message:"Password invalido"})
+    res.json({message:"usuario logiado"})
 })
 
 
