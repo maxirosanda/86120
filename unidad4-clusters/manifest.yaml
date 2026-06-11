@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clase11062926-deployment-1
+spec:
+  replicas: 8
+  selector:
+    matchLabels:
+      app: clase11062926-pod
+  template:
+    metadata:
+      labels:
+        app: clase11062926-pod
+    spec:
+      containers:
+      - name: clase11062926
+        image: maxirosanda/clase11062926:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: PORT
+          value: "3000"    # ← variable de entorno
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: clase11062926-service
+spec:
+  selector:
+    app: clase11062926-pod          # apunta a los 8 pod
+  ports:
+  - port: 80
+    targetPort: 3000
+    nodePort: 30080 
+  type: NodePort                # accesible desde afuera del cluster
