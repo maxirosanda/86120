@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ProductsModule } from './products/products.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 
 @Module({
@@ -14,7 +16,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         uri: configService.get<string>('MONGODB_URI'),
       }),
     }),
-    ProductsModule
+    ProductsModule,
+    UsersModule,
+    AuthModule
   ],
   controllers: [],
   providers: [],
